@@ -1,5 +1,15 @@
 package model
 
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
+
+const MERCHANT_NO_TEST = "82229007392000A"
+const APPID_TEST = "OP00000003"
+const SERIAL_NO_TEST = "00dfba8194c41b84cf"
+
 // SpecialCreateReq 收银台订单创建请求
 type SpecialCreateReq struct {
 	OutOrderNo           string          `json:"out_order_no" validate:"required,max=32"`                          // 商户订单号，必填且长度不超过32
@@ -77,6 +87,13 @@ type HBFQSceneInfo struct {
 
 // SpecialCreateRes 收银台订单创建响应
 type SpecialCreateRes struct {
+	Code    string               `json:"code"`
+	Msg     string               `json:"msg"`
+	ResTime string               `json:"resp_time"`
+	ResData SpecialCreateResData `json:"resp_data"`
+}
+
+type SpecialCreateResData struct {
 	MerchantNo         string `json:"merchant_no"`          // 银联商户号，必填且长度不超过32
 	ChannelID          string `json:"channel_id"`           // 字段，必填且长度不超过32
 	OutOrderNo         string `json:"out_order_no"`         // 商户订单号，必填且长度不超过32
@@ -85,4 +102,9 @@ type SpecialCreateRes struct {
 	PayOrderNo         string `json:"pay_order_no"`         // 平台订单号，必填且长度不超过64
 	TotalAmount        string `json:"total_amount"`         // 订单金额，单位：分，必填
 	CounterURL         string `json:"counter_url"`          // 收银台地址信息，必填且长度不超过256
+}
+
+func CreateOrderStr() string {
+	rand.New(rand.NewSource(time.Now().UnixNano())) // 设置随机种子
+	return fmt.Sprintf("%d%d", time.Now().UnixMicro(), rand.Intn(9999))
 }
