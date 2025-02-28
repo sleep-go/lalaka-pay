@@ -55,21 +55,22 @@ func NewClient(appid, serialNo, path, certPath string, prod bool) *Client {
 }
 
 // GetAuthorization 生成签名
-func (c *Client) GetAuthorization(body string) string {
+func (c *Client) GetAuthorization(body string) (string, error) {
 	nonceStr := util.RandStr(12)
 	message := fmt.Sprintf("%s\n%s\n%d\n%s\n%s\n", c.appid, c.serialNo, c.timestamp, nonceStr, body)
 	privateKey, err := loadPrivateKey(c.privateKeyPath)
 	if err != nil {
 		log.Println("Failed to load private key:", err)
-		return ""
+		return "", err
 	}
 	signature, err := signMessage(message, privateKey)
 	if err != nil {
 		log.Println("Failed to sign message:", err)
-		return ""
+		return "", err
 	}
 	signatureBase64 := base64.StdEncoding.EncodeToString(signature)
-	return fmt.Sprintf(`%s appid="%s",serial_no="%s",timestamp="%d",nonce_str="%s",signature="%s"`, algorism, c.appid, c.serialNo, c.timestamp, nonceStr, signatureBase64)
+	sign := fmt.Sprintf(`%s appid="%s",serial_no="%s",timestamp="%d",nonce_str="%s",signature="%s"`, algorism, c.appid, c.serialNo, c.timestamp, nonceStr, signatureBase64)
+	return sign, nil
 }
 
 // SignatureVerification 验签

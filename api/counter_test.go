@@ -9,7 +9,7 @@ import "lalaka-pay/model"
 
 func TestCreate(t *testing.T) {
 	orderId := model.CreateOrderStr()
-	client := NewClient(model.APPID_TEST, model.SERIAL_NO_TEST, "./data/", "./data/", false)
+	client := NewClient(model.APPID_TEST, model.SERIAL_NO_TEST, model.KEY_PATH_TEST, model.CERT_PATH_TEST, false)
 	expeirTime := time.Now().Add(24 * time.Hour).Format("20060102150405")
 	req := model.SpecialCreateReq{
 		OutOrderNo:         orderId,

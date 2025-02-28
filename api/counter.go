@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"lalaka-pay/model"
 	"lalaka-pay/util"
 	"net/http"
@@ -30,10 +31,21 @@ func newBuffer[T any](req *T) *bytes.Buffer {
 
 // doRequest 统一请求方法
 func doRequest[T any, D any](c *Client, url string, req *T) (*D, error) {
-	request, err := http.NewRequest(http.MethodPost, c.Host+url, newBuffer[T](req))
+	reqStr := newBuffer[T](req)
+	request, err := http.NewRequest(http.MethodPost, c.Host+url, reqStr)
 	if err != nil {
 		return nil, err
 	}
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Accept", "application/json")
+	ret := reqStr.String()
+	auth, err := c.GetAuthorization(ret)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Authorization", auth)
+	fmt.Println(ret)
+	fmt.Println(auth)
 	resp, err := c.Http.Do(request)
 	if err != nil {
 		return nil, err
