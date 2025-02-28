@@ -6,8 +6,13 @@ import (
 	"time"
 )
 
-const KEY_PATH_TEST = "../data/pkcs8_private_key.pem"
+const KEY_PATH_TEST = "../data/OP00000003_private_key.pem"
 const CERT_PATH_TEST = "../data/lkl-apigw-v2.cer"
+
+//const MERCHANT_NO_TEST = "82229007392000A"
+//const APPID_TEST = "OP00000003"
+//const SERIAL_NO_TEST = "00dfba8194c41b84cf"
+
 const MERCHANT_NO_TEST = "82229007392000A"
 const APPID_TEST = "OP00000003"
 const SERIAL_NO_TEST = "00dfba8194c41b84cf"

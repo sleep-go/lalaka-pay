@@ -71,16 +71,16 @@ func (c *Client) GetAuthorization(body []byte) (string, error) {
 		return "", err
 	}
 	signatureBase64 := base64.StdEncoding.EncodeToString(signature)
-	fmt.Println(signatureBase64)
+	//fmt.Println(signatureBase64)
+	//
+	//signature2, err := signMessage2(message, privateKey)
+	//if err != nil {
+	//	return "", err
+	//}
+	//signatureBase642 := base64.StdEncoding.EncodeToString(signature2)
+	//fmt.Println(signatureBase642)
 
-	signature2, err := signMessage2(message, privateKey)
-	if err != nil {
-		return "", err
-	}
-	signatureBase642 := base64.StdEncoding.EncodeToString(signature2)
-	fmt.Println(signatureBase642)
-
-	sign := fmt.Sprintf(`%s appid="%s",serial_no="%s",timestamp="%d",nonce_str="%s",signature="%s"`, algorism, c.appid, c.serialNo, c.timestamp, nonceStr, signatureBase642)
+	sign := fmt.Sprintf(`%s appid="%s",serial_no="%s",timestamp="%d",nonce_str="%s",signature="%s"`, algorism, c.appid, c.serialNo, c.timestamp, nonceStr, signatureBase64)
 	return sign, nil
 }
 
