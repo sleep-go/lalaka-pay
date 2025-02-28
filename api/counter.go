@@ -32,20 +32,33 @@ func newBuffer[T any](req *T) *bytes.Buffer {
 // doRequest 统一请求方法
 func doRequest[T any, D any](c *Client, url string, req *T) (*D, error) {
 	reqStr := newBuffer[T](req)
+	fmt.Println(reqStr)
 	request, err := http.NewRequest(http.MethodPost, c.Host+url, reqStr)
 	if err != nil {
 		return nil, err
 	}
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Accept", "application/json")
-	ret := reqStr.String()
-	auth, err := c.GetAuthorization(ret)
+
+	m := model.BaseReq[T]{
+		ReqTime: util.GetReqTime(),
+		Version: "3.0",
+		ReqData: req,
+	}
+	bytes, err := json.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+
+	//ret := reqStr.String()
+
+	auth, err := c.GetAuthorization(bytes)
 	if err != nil {
 		return nil, err
 	}
 	request.Header.Set("Authorization", auth)
-	fmt.Println(ret)
-	fmt.Println(auth)
+	//fmt.Println(ret)
+	//fmt.Println(auth)
 	resp, err := c.Http.Do(request)
 	if err != nil {
 		return nil, err

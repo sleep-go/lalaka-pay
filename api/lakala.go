@@ -2,6 +2,7 @@ package api
 
 import (
 	"crypto"
+	randc "crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/x509"
@@ -55,7 +56,7 @@ func NewClient(appid, serialNo, path, certPath string, prod bool) *Client {
 }
 
 // GetAuthorization 生成签名
-func (c *Client) GetAuthorization(body string) (string, error) {
+func (c *Client) GetAuthorization(body []byte) (string, error) {
 	nonceStr := util.RandStr(12)
 	message := fmt.Sprintf("%s\n%s\n%d\n%s\n%s\n", c.appid, c.serialNo, c.timestamp, nonceStr, body)
 	privateKey, err := loadPrivateKey(c.privateKeyPath)
@@ -63,13 +64,23 @@ func (c *Client) GetAuthorization(body string) (string, error) {
 		log.Println("Failed to load private key:", err)
 		return "", err
 	}
+
 	signature, err := signMessage(message, privateKey)
 	if err != nil {
 		log.Println("Failed to sign message:", err)
 		return "", err
 	}
 	signatureBase64 := base64.StdEncoding.EncodeToString(signature)
-	sign := fmt.Sprintf(`%s appid="%s",serial_no="%s",timestamp="%d",nonce_str="%s",signature="%s"`, algorism, c.appid, c.serialNo, c.timestamp, nonceStr, signatureBase64)
+	fmt.Println(signatureBase64)
+
+	signature2, err := signMessage2(message, privateKey)
+	if err != nil {
+		return "", err
+	}
+	signatureBase642 := base64.StdEncoding.EncodeToString(signature2)
+	fmt.Println(signatureBase642)
+
+	sign := fmt.Sprintf(`%s appid="%s",serial_no="%s",timestamp="%d",nonce_str="%s",signature="%s"`, algorism, c.appid, c.serialNo, c.timestamp, nonceStr, signatureBase642)
 	return sign, nil
 }
 
@@ -121,6 +132,13 @@ func verifyMessage(message string, publicKey *rsa.PublicKey, signature []byte) b
 func signMessage(message string, privateKey *rsa.PrivateKey) ([]byte, error) {
 	hashed := sha256.Sum256([]byte(message))
 	return rsa.SignPKCS1v15(nil, privateKey, crypto.SHA256, hashed[:])
+}
+
+func signMessage2(message string, privateKey *rsa.PrivateKey) ([]byte, error) {
+	hash := crypto.SHA256.New()
+	hash.Write([]byte(message))
+	hashed := hash.Sum(nil)
+	return rsa.SignPKCS1v15(randc.Reader, privateKey, crypto.SHA256, hashed)
 }
 
 // 加载私钥
